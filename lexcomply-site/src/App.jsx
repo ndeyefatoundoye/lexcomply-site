@@ -83,6 +83,11 @@ function Shield({ size = 48 }) {
   );
 }
 
+const scrollTo = (id) => {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior:"smooth", block:"start" });
+};
+
 function Diamond() {
   return <div style={{ width:8, height:8, background:GOLD, transform:"rotate(45deg)", flexShrink:0 }} />;
 }
@@ -94,7 +99,20 @@ function Nav({ active, setActive }) {
     window.addEventListener("scroll", h);
     return () => window.removeEventListener("scroll", h);
   }, []);
-  const links = ["Accueil","Services","À propos","Expertise","Contact"];
+
+  const links = [
+    { label: "Accueil",   id: "accueil" },
+    { label: "Services",  id: "services" },
+    { label: "À propos",  id: "apropos" },
+    { label: "Expertise", id: "expertise" },
+    { label: "Contact",   id: "contact" },
+  ];
+
+  const scrollToSection = (id) => {
+    scrollTo(id);
+    setActive(id);
+  };
+
   return (
     <nav style={{
       position:"fixed", top:0, left:0, right:0, zIndex:100,
@@ -106,7 +124,7 @@ function Nav({ active, setActive }) {
       transition:"all 0.4s ease",
       backdropFilter: scrolled ? "blur(12px)" : "none",
     }}>
-      <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:14, cursor:"pointer" }} onClick={() => scrollToSection("accueil")}>
         <Shield size={36} />
         <div>
           <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:22, fontWeight:700, color:WHITE, letterSpacing:"-0.5px", lineHeight:1 }}>
@@ -117,12 +135,12 @@ function Nav({ active, setActive }) {
       </div>
       <div style={{ display:"flex", gap:36, alignItems:"center" }}>
         {links.map(l => (
-          <span key={l} className="nav-link" onClick={() => setActive(l)}
-            style={{ color: active===l ? GOLD : "rgba(255,255,255,0.8)", borderBottom: active===l ? `1px solid ${GOLD}` : "none", paddingBottom:2 }}>
-            {l}
+          <span key={l.id} className="nav-link" onClick={() => scrollToSection(l.id)}
+            style={{ color: active===l.id ? GOLD : "rgba(255,255,255,0.8)", borderBottom: active===l.id ? `1px solid ${GOLD}` : "none", paddingBottom:2 }}>
+            {l.label}
           </span>
         ))}
-        <button className="btn-gold" style={{ padding:"10px 22px", fontSize:11 }}>Consultation</button>
+        <button className="btn-gold" style={{ padding:"10px 22px", fontSize:11 }} onClick={() => scrollToSection("contact")}>Consultation</button>
       </div>
     </nav>
   );
@@ -130,7 +148,7 @@ function Nav({ active, setActive }) {
 
 function Hero() {
   return (
-    <section style={{
+    <section id="accueil" style={{
       minHeight:"100vh", background:NAVY,
       display:"flex", flexDirection:"column",
       justifyContent:"center", alignItems:"center",
@@ -167,8 +185,8 @@ function Hero() {
         </p>
         <div style={{ height:40 }} />
         <div style={{ display:"flex", gap:16, justifyContent:"center" }}>
-          <button className="btn-gold">Nos services</button>
-          <button className="btn-outline">Prendre rendez-vous</button>
+          <button className="btn-gold" onClick={() => scrollTo("services")}>Nos services</button>
+          <button className="btn-outline" onClick={() => scrollTo("contact")}>Prendre rendez-vous</button>
         </div>
         <div style={{ height:64 }} />
         {/* Stats */}
@@ -205,7 +223,7 @@ function Services() {
     { icon:"fa-solid fa-graduation-cap",       title:"Formation & Veille",                  desc:"Conception de formations en droit OHADA, compliance et gestion des risques. Veille législative et plans de mise en conformité.", tags:["Formation","Veille","OHADA"] },
   ];
   return (
-    <section style={{ padding:"100px 60px", background:IVORY }}>
+    <section id="services" style={{ padding:"100px 60px", background:IVORY }}>
       <div style={{ maxWidth:1100, margin:"0 auto" }}>
         <div style={{ textAlign:"center", marginBottom:64 }}>
           <div className="section-tag">Ce que nous faisons</div>
@@ -239,7 +257,7 @@ function About() {
     { title:"Expertise Africaine", desc:"Une connaissance approfondie du droit OHADA et des réalités économiques de la sous-région." },
   ];
   return (
-    <section style={{ padding:"100px 60px", background:WHITE }}>
+    <section id="apropos" style={{ padding:"100px 60px", background:WHITE }}>
       <div style={{ maxWidth:1100, margin:"0 auto", display:"grid", gridTemplateColumns:"1fr 1fr", gap:80, alignItems:"center" }}>
         <div>
           <div className="section-tag">Qui sommes-nous</div>
@@ -314,7 +332,7 @@ function WhyUs() {
     { n:"100%", l:"Confidentialité garantie" },
   ];
   return (
-    <section style={{ padding:"100px 60px", background:NAVY, position:"relative", overflow:"hidden" }}>
+    <section id="expertise" style={{ padding:"100px 60px", background:NAVY, position:"relative", overflow:"hidden" }}>
       <svg style={{ position:"absolute", inset:0, width:"100%", height:"100%", opacity:0.04 }} viewBox="0 0 1200 500" preserveAspectRatio="none">
         {[0,1,2,3,4,5].map(i => (
           <path key={i} d={`M${i*200} 0 L${i*200+100} 500`} fill="none" stroke={GOLD} strokeWidth="1" />
@@ -358,7 +376,7 @@ function WhyUs() {
 
 function Contact() {
   return (
-    <section style={{ padding:"100px 60px", background:NAVY2 }}>
+    <section id="contact" style={{ padding:"100px 60px", background:NAVY2 }}>
       <div style={{ maxWidth:800, margin:"0 auto" }}>
         <div style={{ textAlign:"center", marginBottom:56 }}>
           <div className="section-tag">Nous contacter</div>
@@ -386,7 +404,8 @@ function Contact() {
             <option style={{ background:NAVY }}>Autre</option>
           </select>
           <textarea className="contact-input" placeholder="Décrivez votre besoin..." rows={5} style={{ resize:"vertical" }} />
-          <button className="btn-gold" style={{ width:"100%", padding:"18px", fontSize:13 }}>
+          <button className="btn-gold" style={{ width:"100%", padding:"18px", fontSize:13 }}
+            onClick={() => alert("Merci pour votre message ! Nous vous répondons sous 24h.")}>
             Envoyer ma demande
           </button>
         </div>
@@ -395,11 +414,12 @@ function Contact() {
         <div style={{ height:32 }} />
         <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:24, textAlign:"center" }}>
           {[
-            { icon:"📍", label:"Dakar, Sénégal", sub:"Siège social" },
-            { icon:"📧", label:"contact@lexcomply.sn", sub:"Email professionnel" },
-            { icon:"📱", label:"+221 XX XXX XX XX", sub:"WhatsApp / Téléphone" },
+            { icon:"📍", label:"Dakar, Sénégal", sub:"Siège social", href:null },
+            { icon:"📧", label:"contact@lexcomplyconsulting.com", sub:"Email professionnel", href:"mailto:contact@lexcomplyconsulting.com" },
+            { icon:"📱", label:"+221 XX XXX XX XX", sub:"WhatsApp / Téléphone", href:"https://wa.me/221XXXXXXXX" },
           ].map((c,i) => (
-            <div key={i}>
+            <div key={i} style={{ cursor: c.href ? "pointer" : "default" }}
+              onClick={() => c.href && window.open(c.href, "_blank")}>
               <div style={{ fontSize:24, marginBottom:8 }}>{c.icon}</div>
               <div style={{ fontFamily:"'Jost',sans-serif", fontSize:13, color:GOLD }}>{c.label}</div>
               <div style={{ fontFamily:"'Jost',sans-serif", fontSize:11, color:"rgba(255,255,255,0.4)", letterSpacing:"1.5px", textTransform:"uppercase", marginTop:4 }}>{c.sub}</div>
@@ -434,7 +454,7 @@ function Footer() {
 }
 
 export default function LexComplyWebsite() {
-  const [active, setActive] = useState("Accueil");
+  const [active, setActive] = useState("accueil");
   return (
     <div className="lc-site">
       <Nav active={active} setActive={setActive} />
@@ -447,3 +467,4 @@ export default function LexComplyWebsite() {
     </div>
   );
 }
+
